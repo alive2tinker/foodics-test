@@ -13,10 +13,6 @@ use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
 {
-    protected $observers = [
-        Ingredient::class => [IngredientObserver::class],
-        OrderProduct::class => [OrderProductObserver::class],
-    ];
     /**
      * The event to listener mappings for the application.
      *
@@ -33,7 +29,8 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Ingredient::observe(IngredientObserver::class);
+        OrderProduct::observe(OrderProductObserver::class);
     }
 
     /**

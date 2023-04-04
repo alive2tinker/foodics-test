@@ -2,13 +2,16 @@
 
 namespace Tests\Feature;
 
+use App\Mail\LowStockNotification;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class IngredientTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, DatabaseMigrations;
 
     public function setUp(): void
     {
@@ -73,5 +76,22 @@ class IngredientTest extends TestCase
             'currentStock' => 960,
             'topStock' => 1000
         ]);
+    }
+
+    public function test_admin_is_notified_of_low_stock(): void
+    {
+        Mail::fake();
+        $requestPayload = [
+            'customerName' => "john doe",
+            'products' => [
+                [
+                    'id' => 1,
+                    'quantity' => 50
+                ]
+            ]
+        ];
+        $this->post('/api/order', $requestPayload);
+
+        Mail::assertSent(LowStockNotification::class);
     }
 }

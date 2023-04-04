@@ -28,7 +28,7 @@ class HaveEnoughStock implements ValidationRule
                     Log::debug('ingredient info', [
                         'ingredient' => $ingredient
                     ]);
-                    $enoughStock = $enoughStock + (($oproduct['quantity'] * $ingredient->quantity) <= $ingredient->ingredient->currentStock);
+                    $enoughStock = $enoughStock && (($oproduct['quantity'] * $ingredient->quantity) <= $ingredient->ingredient->currentStock);
                 }
             }
         }catch (\Exception $e){

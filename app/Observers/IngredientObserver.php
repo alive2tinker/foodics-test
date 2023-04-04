@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Jobs\NotifyOfLowStock;
 use App\Models\Ingredient;
+use Illuminate\Support\Facades\Log;
 
 class IngredientObserver
 {
@@ -20,18 +21,15 @@ class IngredientObserver
      */
     public function updated(Ingredient $ingredient): void
     {
-        switch ($ingredient->wasChanged()){
-            case 'topStock':
-                if(!$ingredient->lowLevelNotification)
-                    $ingredient->update(['lowLevelNotification' => true]);
-                break;
-            case 'currentStock':
-                $stockPercentage = ($ingredient->currentStock / $ingredient->topStock) * 100;
-                if($stockPercentage < 50 && $ingredient->lowLevelNotification){
-                    $ingredient->update(['lowLevelNotification' => false]);
-                    NotifyOfLowStock::dispatch($ingredient);
-                }
-                break;
+        if($ingredient->wasChanged('topStock')){
+            if(!$ingredient->lowLevelNotification)
+                $ingredient->update(['lowLevelNotification' => true]);
+        }else if($ingredient->wasChanged('currentStock')){
+            $stockPercentage = ($ingredient->currentStock / $ingredient->topStock) * 100;
+            if($stockPercentage < 50 && $ingredient->lowLevelNotification){
+                $ingredient->update(['lowLevelNotification' => false]);
+                NotifyOfLowStock::dispatch($ingredient);
+            }
         }
     }
 
