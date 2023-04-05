@@ -21,14 +21,16 @@ class IngredientObserver
      */
     public function updated(Ingredient $ingredient): void
     {
-        if($ingredient->wasChanged('topStock')){
-            if(!$ingredient->lowLevelNotification)
+        if ($ingredient->wasChanged('topStock')) {
+            if (!$ingredient->lowLevelNotification)
                 $ingredient->update(['lowLevelNotification' => true]);
-        }else if($ingredient->wasChanged('currentStock')){
-            $stockPercentage = ($ingredient->currentStock / $ingredient->topStock) * 100;
-            if($stockPercentage < 50 && $ingredient->lowLevelNotification){
-                $ingredient->update(['lowLevelNotification' => false]);
+        } else if ($ingredient->wasChanged('currentStock')) {
+            $stockPercentage = ((int) $ingredient->currentStock / (int) $ingredient->topStock) * 100;
+            if ($stockPercentage <= 50 && $ingredient->lowLevelNotification) {
                 NotifyOfLowStock::dispatch($ingredient);
+                $dbIngredient = Ingredient::lockForUpdate()->find($ingredient->id);
+                $dbIngredient->lowLevelNotification = false;
+                $dbIngredient->save();
             }
         }
     }

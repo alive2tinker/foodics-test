@@ -19,9 +19,6 @@ class IngredientTest extends TestCase
         $this->seed();
     }
 
-    /**
-     * A basic unit test example.
-     */
     public function test_order_is_presisted_to_database(): void
     {
         $requestPayload = [
